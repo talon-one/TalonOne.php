@@ -13,19 +13,19 @@ function talonOneDemo() {
 
     $acceptCoupon = function($response, $args) {
         $coupon = $args[0];
-        echo "acceptCoupon $coupon: ".var_dump($args)."\n";
+        echo "acceptCoupon $coupon: ".print_r($response,true)."\n";
     };
     
     $rejectCoupon = function($response, $args) {
         $coupon = $args[0];
-        echo "rejectCoupon $coupon: ".var_dump($args)."\n";
+        echo "rejectCoupon $coupon: ".print_r($response,true)."\n";
     };
     
     $setDiscount = function($response, $args) {
         // This is a good spot to update discount lines in the current cart
         $label = $args[0];
         $value = $args[1];
-        echo "setDiscount: $label $value ".var_dump($args)."\n";
+        echo "setDiscount: $label $value ".print_r($response,true)."\n";
     };
 
     // Refer to http://developers.talon.one/data-model/attribute-library/ for additional attributes
@@ -36,12 +36,12 @@ function talonOneDemo() {
     } else {
         echo "Profile updated.\n";
     }
-    
+
     $response = $t->put("customer_sessions/testsession12345",
                         array('attributes' => array('BillingCity' => 'Berlin'),
-                              'coupon' => 'TALON-3000',
+                              'coupon' => 'DEMO-8FM4-WHQ8',
                               'profileId' => 'demo1234',
-                              'session' => 'open'));
+                              'state' => 'open'));
 
     if (!$response) {
         echo "Session update failed. Response: $response\n";

@@ -1,21 +1,21 @@
 <?php
 
-class TalonOne {
-    public $applicationId;
-    public $applicationKey;
+class TaloneOneManagement {
     public $subdomain;
+    public $sessionToken;
     
     public function apiRequest($method, $resource, $payload) {
         $baseUrl = "https://".$this->subdomain.".talon.one/v1";
-        $key = hex2bin($this->applicationKey);
         $jsonString = json_encode($payload);
-        $signature = hash_hmac('md5', $jsonString, $key);
         $url = $baseUrl.'/'.$resource;
 
         $headers = array(
-            'Content-Type: application/json',
-            'Content-Signature: signer='.$this->applicationId.'; signature='.$signature
+            'Content-Type: application/json'
         );
+
+        if ($this->sessionToken) {
+            array_push($headers, "Authorization: Bearer ".$this->sessionToken);
+        }
 
         $curl = curl_init($url);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
@@ -24,9 +24,8 @@ class TalonOne {
         curl_setopt($curl, CURLOPT_POSTFIELDS, $jsonString);
         curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
         $response = curl_exec($curl);
-
         curl_close($curl);
-        
+
         if ($response) {
             $response = json_decode($response, true);
         }
@@ -40,20 +39,25 @@ class TalonOne {
     public function put($resource, $payload) {
         return $this->apiRequest("PUT", $resource, $payload);
     }
+    
+    public function get($resource) {
+        return $this->apiRequest("GET", $resource, array());
+    }
+    
+    public function delete($resource, $payload) {
+        return $this->apiRequest("DELETE", $resource, $payload);
+    }
+    
+    public function createManagementSession($email, $password) {
+        $response = $this->post("sessions", array("email" => $email, "password" => $password));
+        $this->sessionToken = $response['token'];
+        return $response;
+    }
 
-    public function processEffects($response, $handlers) {
-        $fxs = $response['event']['effects'];
-        
-        foreach ($fxs as $fx) {
-            list($campaignId, $rulesetId, $ruleIndex, $effect) = $fx;
-            $action = $effect[0];
-            $args = array_slice($effect, 1);
-
-            $handler = $handlers[$action];
-            if ($handler) {
-                $handler($response, $args);
-            }
-        }
+    public function destroyManagementSession() {
+        $response = $this->delete("sessions", array());
+        $this->sessionToken = NULL;
+        return $response;
     }
 }
 
