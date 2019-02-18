@@ -1,3 +1,5 @@
+# ⚠️ THIS SDK IS NOT BEING MAINTAINED. PLEASE REFER TO https://github.com/talon-one/TalonOnePHPsdk
+
 # PHP Examples for Talon.One Integration API and Mangement API
 
 Currently, these demos only require the cURL PHP module.
